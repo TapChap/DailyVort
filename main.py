@@ -1,5 +1,4 @@
-import json
-import prompt, ParashaAPI, WeekDaysPrompt
+import prompt, ParashaAPI, WeekDaysPrompt, json
 from GPTconfig import Prompt
 from chatGPT import chatGPT
 from sendEmail import sendEmail
@@ -13,6 +12,7 @@ gmail_password = "xmbp rlzd pnst ciej"
 def lambda_handler(event, context):
     parasha = ParashaAPI.getParasha()
     dayOfTheWeek = WeekDaysPrompt.getWeekDay()
+    recipients = open('recipients.txt', 'r').read().splitlines()
 
     if dayOfTheWeek == 7:
         return {
@@ -21,9 +21,8 @@ def lambda_handler(event, context):
         }
 
     dailyTorah = getDailyTorah(dayOfTheWeek, parasha)
-    sendEmail(gmail_user, gmail_password, ["shaigimel@gmail.com", "grossmaneph@gmail.com", "Shalev223344@gmail.com"], "Daily Torah", dailyTorah)
+    sendEmail(gmail_user, gmail_password, recipients, "הפרשה היומית - chatGPT", dailyTorah + '\n\n generetad by chatGPT, sent by SMTP, built by Shai Grossman')
 
-    # return {
-    #     'statusCode': 200,
-    #     'body': json.dumps('success.')
-    # }
+    return {'statusCode': 200}
+
+lambda_handler('sdf', 'ad')
