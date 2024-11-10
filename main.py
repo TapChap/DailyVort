@@ -1,24 +1,29 @@
+import json
 import prompt, ParashaAPI, WeekDaysPrompt
 from GPTconfig import Prompt
 from chatGPT import chatGPT
+from sendEmail import sendEmail
 
-systemPrompt = prompt.systemPrompt
-parasha = ParashaAPI.getParasha()
-dayOfTheWeek = WeekDaysPrompt.getWeekDay()
+def getDailyTorah(weekDay, parasha):
+    return chatGPT(prompt.systemPrompt + Prompt("פרשת השבוע היא " + parasha) + WeekDaysPrompt.Week().getPrompt(weekDay))
 
-def getWeeklyTorah(weekDay, parasha):
-    return chatGPT(systemPrompt + Prompt("פרשת השבוע היא " + parasha) + WeekDaysPrompt.Week().getPrompt(weekDay))
+gmail_user = "shaigimel@gmail.com"
+gmail_password = "xmbp rlzd pnst ciej"
 
-# split each sentence to a new line
-def formatResponse(response):
-    formatted = ''
-    response = response.split('.')
+def lambda_handler(event, context):
+    parasha = ParashaAPI.getParasha()
+    dayOfTheWeek = WeekDaysPrompt.getWeekDay()
 
-    for line in response:
-        formatted += line
-        formatted += '\n'
+    if dayOfTheWeek == 7:
+        return {
+            'statusCode': 500,
+            'body': json.dumps('unable to send email in Shabbat')
+        }
 
-    return formatted
+    dailyTorah = getDailyTorah(dayOfTheWeek, parasha)
+    sendEmail(gmail_user, gmail_password, ["shaigimel@gmail.com", "grossmaneph@gmail.com", "Shalev223344@gmail.com"], "Daily Torah", dailyTorah)
 
-if __name__ == '__main__':
-    print(formatResponse(getWeeklyTorah(dayOfTheWeek, parasha)))
+    # return {
+    #     'statusCode': 200,
+    #     'body': json.dumps('success.')
+    # }
