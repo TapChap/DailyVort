@@ -3,17 +3,25 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-def sendEmail(sender, password, receivers, subject, massage):
+def sendEmail(sender, password, receivers, subject, message):
     # Gmail SMTP server configuration
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
+
+    html_message = f"""
+        <html>
+            <body style="direction: rtl;">
+                <p>{message.replace('\n', '<br>')}</p>
+            </body>
+        </html>
+        """
 
     # Create email message
     msg = MIMEMultipart()
     msg["From"] = sender
     msg["To"] = ", ".join(receivers)  # Join list of emails as a single string
     msg["Subject"] = subject
-    msg.attach(MIMEText(massage, "plain"))
+    msg.attach(MIMEText(html_message, "html"))
 
     # Send the email
 

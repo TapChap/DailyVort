@@ -1,28 +1,37 @@
-import RecipientsAPI
-import prompt, ParashaAPI, json
+import prompt, ParashaAPI, json, RecipientsAPI
 from GPTconfig import Prompt
 from chatGPT import chatGPT
 from sendEmail import sendEmail
 
 def getDailyTorah(weekDay, parasha):
-    return chatGPT(prompt.systemPrompt + Prompt("פרשת השבוע היא " + parasha) + prompt.Week().getPrompt(weekDay))
+    return chatGPT(prompt.systemPrompt + Prompt("פרשת השבוע היא " + parasha) + prompt.Week().getPrompt(weekDay)[0])
 
 gmail_user = "shaigimel@gmail.com"
 gmail_password = "xmbp rlzd pnst ciej"
 
-def lambda_handler(event, context):
+def lambda_handler():
     parasha = ParashaAPI.getParasha()
-    dayOfTheWeek = prompt.getWeekDay()
+    weekDay = prompt.getWeekDay()
     # recipients = open('recipients.txt', 'r').read().splitlines()
     recipients = RecipientsAPI.getRecipients()
 
-    if dayOfTheWeek == 7:
+    if weekDay == 7:
         return {
             'statusCode': 503,
             'body': json.dumps('unable to send email in Shabbat')
         }
 
-    dailyTorah = getDailyTorah(dayOfTheWeek, parasha)
-    sendEmail(gmail_user, gmail_password, recipients, "הפרשה היומית - chatGPT", dailyTorah + '\n\n generetad by chatGPT, sent by SMTP, built by Shai Grossman')
+    dailyTorah = getDailyTorah(weekDay, parasha)
+    lineSpacing = '\n\n'
+    emailSignature = 'generetad by chatGPT, sent by SMTP, built by Shai Grossman'
+
+    subject = "הפרשה היומית - יום " + prompt.Week().getPrompt(weekDay)[1]
+    massage = dailyTorah + lineSpacing + emailSignature
+
+    print(dailyTorah)
+    sendEmail(gmail_user, gmail_password, recipients, subject, massage)
 
     return {'statusCode': 200}
+
+if __name__ == '__main__':
+    lambda_handler()

@@ -6,7 +6,7 @@ class Role:
     SYSTEM = 'system'
 
 class Config():
-    def __init__(self, model="gpt-4o", max_tokens=750):
+    def __init__(self, model="gpt-3.5-turbo", max_tokens=750):
         self.model = model
         self.max_tokens = max_tokens
 
