@@ -23,7 +23,7 @@ def lambda_handler():
 
     dailyTorah = getDailyTorah(weekDay, parasha)
     lineSpacing = '\n\n'
-    emailSignature = 'generetad by chatGPT, sent by SMTP, built by Shai Grossman'
+    emailSignature = 'generetad by chatGPT, built by Shai Grossman'
 
     subject = "הפרשה היומית - יום " + prompt.Week().getPrompt(weekDay)[1]
     massage = dailyTorah + lineSpacing + emailSignature
